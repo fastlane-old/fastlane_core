@@ -61,9 +61,9 @@ module FastlaneCore
         end
       end
 
-      def wait_for_elements(name, enable_hidden = false)
+      def wait_for_elements(name, include_hidden = false)
         counter = 0
-        Capybara.ignore_hidden_elements = false if enable_hidden
+        Capybara.ignore_hidden_elements = false if include_hidden
         results = all(name)
         while results.count == 0      
           # Helper.log.debug "Waiting for #{name}"
@@ -77,7 +77,7 @@ module FastlaneCore
             raise ItunesConnectGeneralError.new("Couldn't find element '#{name}' after waiting for quite some time")
           end
         end
-        Capybara.ignore_hidden_elements = true if enable_hidden
+        Capybara.ignore_hidden_elements = true if include_hidden
         return results
       end
   end
