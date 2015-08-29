@@ -201,7 +201,7 @@ module FastlaneCore
       end
 
       def escaped_password(password)
-        Shellwords.escape(password)
+        password.gsub(/'/) {|s| "\'"}
       end
 
   end
