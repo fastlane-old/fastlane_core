@@ -70,7 +70,9 @@ describe FastlaneCore do
       long_breakable_text = 'bar ' * 40
       @config[:cert_name] = long_breakable_text
       value = FastlaneCore::PrintTable.print_values(config: @config, hide_keys: [:output])
-      expect(value[:rows]).to eq([['cert_name', long_breakable_text]])
+      expect(value[:rows].count).to eq(1)
+      expect(value[:rows][0][1]).to end_with '...'
+      expect(value[:rows][0][1].length).to be < long_breakable_text.length
       # expect(value[:style]).to eq({width: 80})
     end
   end
