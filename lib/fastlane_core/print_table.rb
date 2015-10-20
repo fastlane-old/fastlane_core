@@ -5,26 +5,38 @@ module FastlaneCore
       # You can pass an array to `hide_key` if you don't want certain elements to show up (symbols)
       def print_values(config: nil, title: nil, hide_keys: [])
         require 'terminal-table'
-        rows = []
 
-        config.available_options.each do |config_item|
-          value = config.fetch(config_item.key, ask: false) # Don't ask the user for missing values at this point
-          next if value.nil?
-          next if value.to_s == ""
-          next if hide_keys.include?(config_item.key)
-
-          rows << [config_item.key, value]
-        end
+        options = config.nil? ? {} : config.values
+        rows = self.collect_rows(options: options, hide_keys: hide_keys.map(&:to_s), prefix: '')
 
         params = {}
         params[:rows] = rows
         params[:title] = title.green if title
+        # params[:style] = {width: 80} # broken with 1.4.5
 
         puts ""
         puts Terminal::Table.new(params)
         puts ""
 
-        return params
+        params
+      end
+
+      def collect_rows(options: nil, hide_keys: [], prefix: '')
+        rows = []
+
+        options.each do |key, value|
+          prefixed_key = "#{prefix}#{key}"
+          next if value.nil?
+          next if value.to_s == ""
+          next if hide_keys.include?(prefixed_key)
+
+          if value.respond_to? :key
+            rows.concat self.collect_rows(options: value, hide_keys: hide_keys, prefix: "#{prefix}#{key}.")
+          else
+            rows << [prefixed_key, value]
+          end
+        end
+        rows
       end
     end
   end
