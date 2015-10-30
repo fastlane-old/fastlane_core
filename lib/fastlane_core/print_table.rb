@@ -10,16 +10,14 @@ module FastlaneCore
         rows = self.collect_rows(options: options, hide_keys: hide_keys.map(&:to_s), prefix: '')
 
         params = {}
-        params[:rows] = limit_row_size rows
+        params[:rows] = limit_row_size(rows)
         params[:title] = title.green if title
-        # params[:style] = {width: 80} # broken with 1.4.5
-        # workaround in the meantime
 
         puts ""
         puts Terminal::Table.new(params)
         puts ""
 
-        params
+        return params
       end
 
       def limit_row_size(rows, max_length = 100)
