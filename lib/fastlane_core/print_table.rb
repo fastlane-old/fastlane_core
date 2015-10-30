@@ -2,7 +2,7 @@ module FastlaneCore
   class PrintTable
     class << self
       # This method prints out all the user inputs in a nice table. Useful to summarize the run
-      # You can pass an array to `hide_key` if you don't want certain elements to show up (symbols)
+      # You can pass an array to `hide_keys` if you don't want certain elements to show up (symbols or strings)
       def print_values(config: nil, title: nil, hide_keys: [])
         require 'terminal-table'
 
