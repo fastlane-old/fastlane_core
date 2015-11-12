@@ -18,8 +18,12 @@ module FastlaneCore
         puts "\nUpdate using 'sudo gem update #{gem_name.downcase}'".green
       end
 
+      def generate_gem_releases_url(gem_name)
+          "https://api.github.com/repos/fastlane/#{gem_name}/releases"
+      end
+
       def releases(gem_name)
-        url = "https://api.github.com/repos/fastlane/#{gem_name}/releases"
+        url = generate_gem_releases_url(gem_name)
         JSON.parse(Excon.get(url).body)
       end
     end
