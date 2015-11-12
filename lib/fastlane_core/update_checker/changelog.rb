@@ -19,7 +19,7 @@ module FastlaneCore
       end
 
       def generate_gem_releases_url(gem_name)
-          "https://api.github.com/repos/fastlane/#{gem_name}/releases"
+        "https://api.github.com/repos/fastlane/#{gem_name}/releases"
       end
 
       def releases(gem_name)
