@@ -58,7 +58,7 @@ module FastlaneCore
         if option
           option.verify!(value) # Call the verify block for it too
         else
-          raise "Could not find option '#{key}' in the list of available options: #{@available_options.collect(&:key).join(', ')}".red
+          UI.user_error!("Could not find option '#{key}' in the list of available options: #{@available_options.collect(&:key).join(', ')}")
         end
       end
     end
@@ -125,7 +125,7 @@ module FastlaneCore
       raise "Key '#{key}' must be a symbol. Example :app_id.".red unless key.kind_of?(Symbol)
 
       option = option_for_key(key)
-      raise "Could not find option for key :#{key}. Available keys: #{@available_options.collect(&:key).join(', ')}".red unless option
+      UI.user_error!("Could not find option for key :#{key}. Available keys: #{@available_options.collect(&:key).join(', ')}") unless option
 
       value = @values[key]
 
@@ -173,7 +173,7 @@ module FastlaneCore
       option = option_for_key(key)
 
       unless option
-        raise "Could not find option '#{key}' in the list of available options: #{@available_options.collect(&:key).join(', ')}".red
+        UI.user_error!("Could not find option '#{key}' in the list of available options: #{@available_options.collect(&:key).join(', ')}")
       end
 
       option.verify!(value)

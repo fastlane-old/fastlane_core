@@ -30,19 +30,19 @@ module FastlaneCore
     #####################################################
 
     def error(message)
-      log.error(message.red)
+      log.error(message.to_s.red)
     end
 
     def important(message)
-      log.warn(message.yellow)
+      log.warn(message.to_s.yellow)
     end
 
     def success(message)
-      log.info(message.green)
+      log.info(message.to_s.green)
     end
 
     def message(message)
-      log.info(message)
+      log.info(message.to_s)
     end
 
     def command(message)
@@ -63,9 +63,9 @@ module FastlaneCore
 
     def header(message)
       i = message.length + 8
-      Helper.log.info(("-" * i).green)
-      Helper.log.info(("--- " + message + " ---").green)
-      Helper.log.info(("-" * i).green)
+      log.info(("-" * i).green)
+      log.info(("--- " + message + " ---").green)
+      log.info(("-" * i).green)
     end
 
     #####################################################
@@ -115,7 +115,9 @@ module FastlaneCore
         begin
           raise exception
         rescue => ex
-          raise $!, "[!] #{ex.message}".red, $!.backtrace
+          message = "[!] #{ex.message}".red
+          puts message # TODO: should this be here?
+          raise $!, message, $!.backtrace
         end
       else
         raise exception # we're just raising whatever we have here #yolo
@@ -123,13 +125,9 @@ module FastlaneCore
     end
 
     def user_error!(error_message)
-      error_message = "\n[!] #{error_message}".red
-      if $verbose
-        # On verbose we want to see the full stack trace
-        raise error_message
-      else
-        abort(error_message)
-      end
+      error_message = "[!] #{error_message}".red
+      puts error_message # TODO: should this be here?
+      raise UserError.new(error_message)
     end
 
     private

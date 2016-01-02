@@ -1,4 +1,8 @@
 module FastlaneCore
+  # Exception that is thrown when the user did something wrong (e.g. invalid parameters)
+  class UserError < StandardError
+  end
+
   # Abstract super class
   class Interface
     #####################################################
