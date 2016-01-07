@@ -7,7 +7,7 @@ module FastlaneCore
       def print_values(config: nil, title: nil, hide_keys: [], mask_keys: [])
         require 'terminal-table'
 
-        options = config.nil? ? {} : config.values
+        options = config.nil? ? {} : config.values(ask: false)
         rows = self.collect_rows(options: options, hide_keys: hide_keys.map(&:to_s), mask_keys: mask_keys.map(&:to_s), prefix: '')
 
         params = {}

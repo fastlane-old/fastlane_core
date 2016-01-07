@@ -5,7 +5,6 @@ describe FastlaneCore do
         FastlaneCore::ConfigItem.new(key: :cert_name,
                                 env_name: "SIGH_PROVISIONING_PROFILE_NAME",
                              description: "Set the profile name",
-                           default_value: "production_default",
                             verify_block: nil),
         FastlaneCore::ConfigItem.new(key: :output,
                                 env_name: "SIGH_OUTPUT_PATH",
@@ -68,6 +67,13 @@ describe FastlaneCore do
       @config[:a_hash][:bar] = { foo: 'bar' }
       value = FastlaneCore::PrintTable.print_values(config: @config, hide_keys: [:cert_name, :a_bool, 'a_hash.foo', 'a_hash.bar.foo'])
       expect(value[:rows]).to eq([['output', '..']])
+    end
+
+    it "supports printing default values and ignores missing unset ones " do
+      @config[:cert_name] = nil # compulsory without default
+      @config[:output] = nil    # compulsory with default
+      value = FastlaneCore::PrintTable.print_values(config: @config)
+      expect(value[:rows]).to eq([['output', '.'], ['a_bool', true]])
     end
 
     it "breaks down long lines" do
