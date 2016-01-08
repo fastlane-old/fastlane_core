@@ -1,4 +1,5 @@
 require 'json'
+require 'safe_pty'
 require 'fastlane_core/version'
 require 'fastlane_core/helper'
 require 'fastlane_core/xcodebuild_list_output_parser'

@@ -43,7 +43,7 @@ module FastlaneCore
         end
 
         begin
-          PTY.spawn(command) do |stdin, stdout, pid|
+          SafePty.spawn(command) do |stdin, stdout, pid|
             stdin.each do |l|
               line = l.strip # strip so that \n gets removed
               output << line
@@ -57,7 +57,6 @@ module FastlaneCore
 
               UI.command_output(line)
             end
-            Process.wait(pid)
           end
         rescue => ex
           # This could happen when the environment is wrong:
