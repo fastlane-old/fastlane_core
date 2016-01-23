@@ -67,7 +67,7 @@ module FastlaneCore
       raise "-v is already used for the version (key #{option.key})".red if short_switch == "-v"
       raise "-h is already used for the help screen (key #{option.key})".red if short_switch == "-h"
       raise "-t is already used for the trace screen (key #{option.key})".red if short_switch == "-t"
-
+      short_option = short_option.nil? ? "" : short_option
       used_switches << short_switch
     end
   end
