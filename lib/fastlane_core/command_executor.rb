@@ -43,7 +43,7 @@ module FastlaneCore
         end
 
         begin
-          SafePty.spawn(command) do |stdin, stdout, pid|
+          status = SafePty.spawn(command) do |stdin, stdout, pid|
             stdin.each do |l|
               line = l.strip # strip so that \n gets removed
               output << line
@@ -58,8 +58,11 @@ module FastlaneCore
               UI.command_output(line)
             end
           end
+          raise "Exit status: #{status}".red if status != 0
         rescue => ex
-          # This could happen when the environment is wrong:
+          # This could happen
+          # * if the status is failed
+          # * when the environment is wrong:
           # > invalid byte sequence in US-ASCII (ArgumentError)
           output << ex.to_s
           o = output.join("\n")
@@ -70,20 +73,6 @@ module FastlaneCore
             raise ex
           end
         end
-
-        # Exit status for build command, should be 0 if build succeeded
-        status = $?.exitstatus
-        if status != 0
-          o = output.join("\n")
-          puts o # the user has the right to see the raw output
-          UI.error "Exit status: #{status}"
-          if error
-            error.call(o, status)
-          else
-            raise "Exit status: #{status}"
-          end
-        end
-
         return output.join("\n")
       end
     end
