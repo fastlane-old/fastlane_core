@@ -193,7 +193,7 @@ module FastlaneCore
         '"' + Helper.transporter_path + '"',
         "-m lookupMetadata",
         "-u \"#{username}\"",
-        "-p '#{escaped_password(password)}'",
+        "-p #{escaped_password(password)}",
         "-apple_id #{apple_id}",
         "-destination '#{destination}'"
       ].join(' ')
@@ -204,7 +204,7 @@ module FastlaneCore
         '"' + Helper.transporter_path + '"',
         "-m upload",
         "-u \"#{username}\"",
-        "-p '#{escaped_password(password)}'",
+        "-p #{escaped_password(password)}",
         "-f '#{source}'",
         ENV["DELIVER_ITMSTRANSPORTER_ADDITIONAL_UPLOAD_PARAMETERS"], # that's here, because the user might overwrite the -t option
         "-t 'Signiant'",
