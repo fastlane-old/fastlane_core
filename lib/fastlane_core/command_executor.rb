@@ -42,8 +42,9 @@ module FastlaneCore
           UI.command_output(loading)
         end
 
+        #Runner = FastlaneCore::Runners.Runner
         begin
-          status = SafePty.spawn(command) do |stdin, stdout, pid|
+          status = FastlaneCore::Runner.run(command) do |stdin, stdout, pid|
             stdin.each do |l|
               line = l.strip # strip so that \n gets removed
               output << line

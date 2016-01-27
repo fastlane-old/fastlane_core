@@ -114,7 +114,7 @@ module FastlaneCore
       end
 
       begin
-        SafePty.spawn(command) do |stdin, stdout, pid|
+        FastlaneCore::Runner.run(command) do |stdin, stdout, pid|
           stdin.each do |line|
             parse_line(line) # this is where the parsing happens
           end
