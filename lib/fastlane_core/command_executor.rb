@@ -42,7 +42,6 @@ module FastlaneCore
           UI.command_output(loading)
         end
 
-        #Runner = FastlaneCore::Runners.Runner
         begin
           status = FastlaneCore::Runner.run(command) do |stdin, stdout, pid|
             stdin.each do |l|

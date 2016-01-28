@@ -1,16 +1,31 @@
 module FastlaneCore
+  # this module is meant to be private to this lib
   module Runner
-    def self.run(command, &_block)
-      FastlaneCore::SafePty.spawn(command) do |r,w,p|
-        yield r,w,p
+    class << self
+      def run(command, &block)
+        select_runner_impl.call(command, &block)
+      end
+
+      private
+
+      def select_runner_impl
+        # disable PTY by setting env variable
+        return FastlaneCore::SafePopen.method(:spawn) unless ENV['FASTLANE_NO_TTY'].nil?
+        begin
+          require 'pty'
+          return FastlaneCore::SafePty.method(:spawn)
+        rescue
+          UI.important("No pty implementation found. Falling back to popen. Output might be buffered")
+          return FastlaneCore::SafePopen.method(:spawn)
+        end
       end
     end
   end
 
-  # Executes commands and takes care of error handling and more
+  # Executes commands using PTY and takes care of error handling and more
   class SafePty
     # Wraps the PTY.spawn() call, wait until the process completes.
-    # Also catch sexceptions that might be raised
+    # Also catch exceptions that might be raised
     # See also https://www.omniref.com/ruby/gems/shell_test/0.5.0/files/lib/shell_test/shell_methods/utils.rb
     def self.spawn(command, &_block)
       require 'pty'
@@ -30,6 +45,22 @@ module FastlaneCore
         end
       end
       $?.exitstatus
+    end
+  end
+
+  # Executes commands using popen2 and takes care of error handling and more
+  # Note that the executed program might buffer the output as it isn't run inside
+  # a pseudo terminal.
+  class SafePopen
+    # Wraps the Open3.popen2e() call, wait until the process completes.
+    def self.spawn(command, &_block)
+      require 'open3'
+      Open3.popen2e(command) do |r, w, p|
+        yield w, r, p.value.pid # note the inversion
+        r.close
+        w.close
+        p.value.exitstatus
+      end
     end
   end
 end
