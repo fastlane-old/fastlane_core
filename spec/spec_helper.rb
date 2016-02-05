@@ -5,6 +5,17 @@ require 'fastlane_core'
 
 require 'webmock/rspec'
 
+SimpleCov.at_exit do
+  puts "Coverage done"
+  SimpleCov.result.format!
+end
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+
+SimpleCov.start
 # This module is only used to check the environment is currently a testing env
 module SpecHelper
 end
