@@ -46,5 +46,29 @@ describe FastlaneCore do
         end
       end
     end
+    describe "execute" do
+      it "raise error upon exit status failure" do
+        expect do
+          output = FastlaneCore::CommandExecutor.execute(command: "ruby -e 'exit 1'")
+        end.to raise_error(RuntimeError, /Exit status: 1/)
+      end
+
+      it "captures error output upon exit status failure" do
+        captured_output = []
+        error = proc do |l|
+          captured_output << l
+        end
+        output = FastlaneCore::CommandExecutor.execute(command: "ruby -e 'exit 1'", error: error)
+        expect(captured_output).to eq(["Exit status: 1".red])
+        expect(output).to eq("Exit status: 1".red)
+      end
+
+      it "allows to test I/O buffering" do
+        # ENV['FASTLANE_NO_TTY'] = 'whatever'
+        command = "ruby -e '5.times{sleep 0.1; puts \"HI\"}'"
+        output = FastlaneCore::CommandExecutor.execute(command: command, print_all: true)
+        expect(output).to eq("HI\nHI\nHI\nHI\nHI")
+      end
+    end
   end
 end
