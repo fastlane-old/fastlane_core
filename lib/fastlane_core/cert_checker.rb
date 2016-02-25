@@ -50,9 +50,7 @@ module FastlaneCore
         url = 'https://developer.apple.com/certificationauthority/AppleWWDRCA.cer'
         filename = File.basename(url)
         keychain = wwdr_keychain
-        if not keychain.empty?
-          keychain.prepend("-k ")
-        end
+        keychain.prepend("-k ") unless keychain.empty?
         `curl -O #{url} && security import #{filename} #{keychain}`
         UI.user_error!("Could not install WWDR certificate") unless $?.success?
       end
