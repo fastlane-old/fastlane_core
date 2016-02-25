@@ -40,7 +40,8 @@ module FastlaneCore
 
     def self.wwdr_certificate_installed?
       certificate_name = "Apple Worldwide Developer Relations Certification Authority"
-      response = Helper.backticks("security find-certificate -c '#{certificate_name}'", print: $verbose)
+      keychain = wwdr_keychain
+      response = Helper.backticks("security find-certificate -c '#{certificate_name}' #{keychain}", print: $verbose)
       return response.include?("attributes:")
     end
 
@@ -48,9 +49,21 @@ module FastlaneCore
       Dir.chdir('/tmp') do
         url = 'https://developer.apple.com/certificationauthority/AppleWWDRCA.cer'
         filename = File.basename(url)
-        `curl -O #{url} && security import #{filename} -k login.keychain`
+        keychain = wwdr_keychain
+        if not keychain.empty?
+          keychain.prepend("-k ")
+        end
+        `curl -O #{url} && security import #{filename} #{keychain}`
         UI.user_error!("Could not install WWDR certificate") unless $?.success?
       end
+    end
+
+    def self.wwdr_keychain
+      keychains = `security list -d user`.split("\n")
+      if keychains.empty?
+        return ""
+      end
+      return keychains[0].strip.tr('"', '').split(File::SEPARATOR)[-1]
     end
 
     def self.sha1_fingerprint(path)
