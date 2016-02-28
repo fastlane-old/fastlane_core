@@ -1,14 +1,19 @@
 require 'open3'
 
 module FastlaneCore
-  class Simulator
+  class Devices
     class << self
-      def requested_os_type
-        'iOS'
+      def all(requested_os_type)
+        all_devices = simulators(requested_os_type)
+        if requested_os_type == "iOS"
+          all_devices += connected_devices
+        end
+
+        return all_devices
       end
 
-      def all
-        Helper.log.info "Fetching available devices" if $verbose
+      def simulators(requested_os_type)
+        Helper.log.info "Fetching available simulator devices" if $verbose
 
         @devices = []
         os_type = 'unknown'
@@ -32,7 +37,37 @@ module FastlaneCore
             # iPad Air 2 (4F3B8059-03FD-4D72-99C0-6E9BBEE2A9CE) (Shutdown) (unavailable, device type profile not found)
             match = line.match(/\s+([^\(]+) \(([-0-9A-F]+)\) \((?:[^\(]+)\)(.*unavailable.*)?/)
             if match && !match[3] && os_type == requested_os_type
-              @devices << Device.new(name: match[1], ios_version: os_version, udid: match[2])
+              @devices << Device.new(name: match[1], ios_version: os_version, udid: match[2], is_simulator: true)
+            end
+          end
+        end
+
+        return @devices
+      end
+
+      def connected_devices
+        Helper.log.info "Fetching available connected devices" if $verbose
+        @devices = []
+        usb_devices_output = ''
+
+        Open3.popen3("system_profiler SPUSBDataType |
+                      sed -n -e '/iPad/,/Serial/p' -e '/iPhone/,/Serial/p' |
+                      grep 'Serial Number:' |
+                      awk -F ': ' '{print $2}'") do |stdin, stdout, stderr, wait_thr|
+          usb_devices_output = stdout.read
+        end
+
+        instruments_devices_output = ''
+        Open3.popen3("instruments -s devices") do |stdin, stdout, stderr, wait_thr|
+          instruments_devices_output = stdout.read
+        end
+
+        usb_devices_output.split(/\n/).each do |device_uuid|
+          instruments_devices_output.split(/\n/).each do |instruments_device|
+            match = instruments_device.match(/(.+) \(([0-9.]+)\) \[([0-9a-f]+)\]?/)
+            if match && match[3] == device_uuid
+              @devices << Device.new(name: match[1], ios_version: match[2], udid: match[3], is_simulator: false)
+              Helper.log.info "Usb Deice Found - " + match[1] + " (" + match[2] + ") UUID:" + match[3] if $verbose
             end
           end
         end
@@ -93,10 +128,13 @@ module FastlaneCore
 
       attr_accessor :ios_version
 
-      def initialize(name: nil, udid: nil, ios_version: nil)
+      attr_accessor :is_simulator
+
+      def initialize(name: nil, udid: nil, ios_version: nil, is_simulator: nil)
         self.name = name
         self.udid = udid
         self.ios_version = ios_version
+        self.is_simulator = is_simulator
       end
 
       def to_s
@@ -105,10 +143,18 @@ module FastlaneCore
     end
   end
 
-  class SimulatorTV < Simulator
+  class Simulator < Devices
     class << self
-      def requested_os_type
-        'tvOS'
+      def all
+        return Devices.simulators('iOS')
+      end
+    end
+  end
+
+  class SimulatorTV < Devices
+    class << self
+      def all
+        return Devices.simulators('tvOS')
       end
     end
   end
