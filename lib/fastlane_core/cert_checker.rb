@@ -57,11 +57,20 @@ module FastlaneCore
     end
 
     def self.wwdr_keychain
-      keychains = `security list -d user`.split("\n")
-      if keychains.empty?
-        return ""
+      priority = [
+        "security list-keychains -d user",
+        "security default-keychain -d user"
+      ]
+      for command in priority
+        keychains = Helper.backticks(command, print: $verbose).split("\n")
+        unless keychains.empty?
+          # Select first keychain name from returned keychains list
+          keychain = keychains[0].strip.tr('"', '').split(File::SEPARATOR)[-1]
+          break
+        end
+        keychain = ""
       end
-      return keychains[0].strip.tr('"', '').split(File::SEPARATOR)[-1]
+      return keychain
     end
 
     def self.sha1_fingerprint(path)
