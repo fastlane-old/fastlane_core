@@ -102,6 +102,19 @@ module FastlaneCore
       !!ENV["ITERM_SESSION_ID"]
     end
 
+    def self.openssl_version
+      return @openssl_version if @openssl_version
+
+      begin
+        output = `openssl version`
+        @openssl_version = output.split("\n").first.split(' ')[1]
+      rescue => ex
+        Helper.log.error ex
+        Helper.log.error "Error detecting currently used openssl version".red
+      end
+      @openssl_version
+    end
+
     # All Xcode Related things
     #
 
