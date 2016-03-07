@@ -1,5 +1,0 @@
-app_identifier "com.krausefx.app"
-
-apple_id do
-  "from_le_block"
-end
